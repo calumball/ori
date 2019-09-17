@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package counter;
+
+service Counter {
+    rpc GetWordCount(GetWordCountRequest) returns (WordCount);
+    rpc GetLineCount(GetLineCountRequest) returns (LineCount);
+}
+
+message GetWordCountRequest {
+    // The text to process.
+    string text = 1;
+    // If true, "ID" and "id" counted separately. If false, they are counted together. 
+    bool respect_caps = 2;
+}
+
+message WordCount {
+    // Map of words to number of occurrences of the word in the text.
+    map<string, uint64> word_frequency = 1;
+}
+
+message GetLineCountRequest {
+    // The text to process.
+    string text = 1;
+}
+
+message LineCount {
+    // The number of lines in the text.
+    uint64 count = 1;
+}

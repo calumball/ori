@@ -1,0 +1,40 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: counter-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: counter
+    spec:
+      containers:
+      - name: grpc
+        image: ori-app
+        # Never pull image because we're using local docker image
+        imagePullPolicy: Never
+        env:
+          - name: COUNTER_PORT
+            value: "8888"
+        ports:
+        - containerPort: 8888
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: counter-service
+spec:
+  selector:
+    app: counter
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8888
+      nodePort: 31013  
+  
