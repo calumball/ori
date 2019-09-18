@@ -1,7 +1,5 @@
 # ori
 
-TODO: clean up readme and finish answering "event store" question
-
 This repo contains a microservice for counting words and lines of text. 
 The service provides a gRPC interface with two endpoints. 
 The gRPC service is defined in `counter/proto/counter.proto`. 
@@ -10,7 +8,7 @@ The implementation for the server is in `counter/server/main.go`.
 I provide a simple command line client for the service, also written in Go. 
 The source code for the CLI is in `cli/main.go`.
 
-I provide a `Dockerfile` for the server and example Kubernetes deployment manifests in `k8s/ori.yaml`. 
+I provide a `Dockerfile` for the server and example Kubernetes deployment manifests in `counter/k8s/ori.yaml`. 
 See below for usage instructions.
 
 There are unit tests for the server implementation as well as a suite of e2e tests. The e2e tests could be run premerge or postmerge against a Kubernetes cluster. 
@@ -47,9 +45,9 @@ ori
 
 There are two types of tests in this repo, unit tests and e2e tests.
 
-If the repo were to get much bigger, I would introduce a testing framework such as testify https://github.com/stretchr/testify
+If the repo were to get much bigger, I would introduce a testing framework such as Testify https://github.com/stretchr/testify
 
-As it stands, I just used the go testing package in the tests to reduce the overhead for the reviewer. 
+As it stands, I just used the Go testing package in the tests to reduce the overhead for the reviewer. 
 
 ### CI/CD
 
@@ -64,7 +62,8 @@ This application and repository are well suited to an automated CI/CD pipeline, 
 
 ### Kubernetes
 
-I decided to create only minimal Kubernetes manifests for this application, including YAML files for the Deployment and Service. Other Kubernetes resources, such as ConfigMaps, Volumes and StatefulSets, would be overkill for such a simple and stateless application.
+I decided to create only minimal Kubernetes manifests for this application, including YAML files for the Deployment and Service. 
+Other Kubernetes resources, such as ConfigMaps, Volumes and StatefulSets, would be overkill for such a simple and stateless application.
 
 ### TODO
 
@@ -195,11 +194,15 @@ Being a stateless lightweight microservice, the app is also highly scalable.
 
 ### eventstore
 
+The application is currently completely stateless, so it is not a good fit for an event store or any form of persistence.
+
+If the service provided counts for text that changed over time, you might use an eventstore to store the text where the events would be the diff with the previous entry for that text. That could allow incremental computation of line and word counts and queries for historical counts.
+
 ### external clients
 
 There are many ways of exposing this app to clients outside of the cluster, depending on the use case.
 In Minikube, the service exposes a `NodePort` so that the CLI already acts as an external client. 
-However, in a real Kubernetes cluster, you would need a LoadBalancer service or similar to provide an external IP for the service.
+However, in a real Kubernetes cluster, you should use a LoadBalancer service or ingress rules to provide an external IP for the service.
 
 However, realistically you wouldn't expose this service directly outside of the cluster.
 For a start, you could run a JSON+REST gateway in front of the gRPC server to allow external clients to communicate with a more familiar interface and to avoid sharing `.proto` files outside of the repository. 
@@ -207,4 +210,4 @@ This way, outside clients can be written in languages without protobuf support a
 See here for details:
 https://github.com/grpc-ecosystem/grpc-gateway 
 
-To serve clients outside of the cluster, it would be best to expose a separate public API service which can then call the Counter srvice.
+To serve clients outside of the cluster, it would be best to expose a separate public API service which can then call the Counter service. Then that public API service can sit behind a load balancer.
