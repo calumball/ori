@@ -79,7 +79,7 @@ If I had more time or the project had a broader scope...
 
 ## Usage
 
-Check out the repo into `$GOPATH/github.com/calumball/ori/` or run `go get github.com/calumball/ori`.
+Check out the repo into `$GOPATH/github.com/calumball/ori/`.
 
 Run all commands in this section from the root of the repo.
 
